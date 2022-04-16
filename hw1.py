@@ -1,8 +1,6 @@
 import sys
 import math
 
-print('-------------- start ----------------')
-
 if len(sys.argv) != 4 and len(sys.argv) != 5:
     print('Invalid input!')
     quit()
@@ -17,9 +15,6 @@ elif len(sys.argv)==5: #with max_iter
     max_iter = sys.argv[2]
     input = sys.argv[3]
     output = sys.argv[4]
-
-print('K=' , K , ' max_iter=' , max_iter , ' input=' , input , ' output=', output)
-print('1-----------------------1')
 
 #Calculate d and N.
 
@@ -39,12 +34,9 @@ N=0
 file = open(input,'r')
 line = file.readline()
 while line !='':
-    #print(line)
     line=file.readline()
     N=N+1
 file.close()
-
-print('N=' , N , ' d=' , d)
 
 #check validation of inputs.
 
@@ -64,8 +56,6 @@ if K<2 or K>=N or max_iter<0:
     print('Invalid Input!')
     quit()
 
-print('2-----------------------2')
-
 dataPoints = [[0 for x in range(d)] for y in range(N)]
 centroids = [[0 for x in range(d)] for y in range(K)]
 centroidsHolder = [[0 for x in range(d)] for y in range(K)]
@@ -79,31 +69,15 @@ while line !='':
     lineList = line.split(",")
     lineList[len(lineList)-1] = lineList[len(lineList)-1].rstrip("\n")
     for y in range(d):
-        #print('x= ', x , ' y = ', y , ' lineList = ', lineList)
         dataPoints[x][y] = float(lineList[y])
     x = x+1
-    line=file.readline()
-    
+    line=file.readline()   
 file.close()
-
-for x in range(N): # printing dataPoints: delete this block later ~~~~~~~~
-    for y in range(d):
-        print(dataPoints[x][y], end=" ")
-    print("")
-
-
-print('3-----------------------3')
 
 for x in range(K): #init centroids
     for y in range(d):
         centroids[x][y] = dataPoints[x][y]
-       
-for x in range(K): # printing centroids: delete this block later ~~~~~~~~
-    for y in range(d):
-        print(centroids[x][y], end=" ")
-    print("")
 
-print('4-----------------------4')
 
 flag = True
 iter = 0
@@ -124,20 +98,17 @@ while flag==True and iter<max_iter: #repeat:
         for y in range(K):
             sum = 0
             for z in range(d):
-                #print('data points: ', dataPoints[y][z] , ' centoids: ' , centroids[x][z])
-                sum = sum + ((dataPoints[x][z]-centroids[y][z])**2)
-            #print(sum)    
+                sum = sum + ((dataPoints[x][z]-centroids[y][z])**2)   
             if sum<min:
                 min = sum
                 minIndex = y
-                #print('minIndex = ', minIndex , 'min= ' , min)
         
         for z in range(d):
             temp = numInCluster[minIndex]
             clusters[minIndex][x][z] = dataPoints[x][z]
             numInCluster[minIndex] = numInCluster[minIndex]+1
 
-    #update the centroids
+    # update the centroids
     # first we copy the current centroids to another array in order to check if new-old<epsilon) 
     for x in range(K):
         for y in range(d):
@@ -151,7 +122,6 @@ while flag==True and iter<max_iter: #repeat:
             for y in range(N):
                 sum = sum + clusters[x][y][count]
             centroids[x][count] = sum/(numInCluster[x]/d)
-            #print(centroids[x][count])
             count = count+1
     
     # now we want to check if ||new-old||<epsilon for every vector in centroids[][]
@@ -173,10 +143,6 @@ while flag==True and iter<max_iter: #repeat:
 
     iter = iter+1
 
-for x in range(K):
-        print(centroids[x])
-
-print('5-----------------------5')
 
 file = open(output,'w')
 for x in range(K):
@@ -191,4 +157,3 @@ for x in range(K):
 file.close()
 
 
-print('-------------- final ----------------')
