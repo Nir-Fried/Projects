@@ -5,7 +5,6 @@
 #include <math.h>
 
 int K = 0;
-int K1 = 0;
 int N = 0;
 int max_iter =0;
 char *input;
@@ -259,8 +258,16 @@ int main(int argc,char * argv[])
             { 
                 sum = sum + clusters[i1][j1];
             }
-            centroids[rip+count] = sum/(numInCluster[i1]/d);
-            count++;
+            if(numInCluster[i1] != 0)
+            {
+                centroids[rip+count] = sum/(numInCluster[i1]/d);
+                count++;
+            }
+            else if(numInCluster[i1] == 0) /* if clsuter is empty*/
+            {
+                centroids[rip+count] = 0;
+                count++;
+            }
             }
             rip = rip +d;
         }

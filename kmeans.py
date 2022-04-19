@@ -121,8 +121,13 @@ while flag==True and iter<max_iter: #repeat:
             sum = 0
             for y in range(N):
                 sum = sum + clusters[x][y][count]
-            centroids[x][count] = sum/(numInCluster[x]/d)
-            count = count+1
+            
+            if numInCluster[x] != 0:
+                centroids[x][count] = sum/(numInCluster[x]/d)
+                count = count+1
+            elif numInCluster[x] == 0: #if cluster is empty
+                centroids[x][count]=0
+                count = count +1
     
     # now we want to check if ||new-old||<epsilon for every vector in centroids[][]
     for x in range(K):
