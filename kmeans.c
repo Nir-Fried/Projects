@@ -306,8 +306,7 @@ int main(int argc,char * argv[])
     {
         for(j=0;j<d;j++)
         {
-            snprintf(final,256,"%0.4f",centroids[i+j]);
-            fputs(final,outputFile);
+            fprintf(outputFile,"%0.4f",centroids[i+j]);
             if(j != d-1)
             {
                 fputs(",",outputFile);
