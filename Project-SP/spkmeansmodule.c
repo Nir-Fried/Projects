@@ -11,6 +11,7 @@
 double sum =0;
 double norm = 0;
 double epsilon = 1/100000;
+double epsilon2 = 0.001;
 int iter = 0;
 double max =0;
 int maxI = 0;
@@ -26,6 +27,7 @@ double c = 0;
 double phi = 0;
 int k = 0;
 int flag = 1;
+int flagg=1;
 
 double offA = 0;
 double offAtag = 0;
@@ -63,6 +65,32 @@ double ** Vtag;
 double* eigenvalues;
 double temp =0;
 double * delta;
+
+double ** U;
+double ** T;
+FILE *outputFile = NULL;
+char * output;
+
+int x =0;
+int cc=0;
+double min=0;
+int counter1 = 0;
+int z1=0;
+int minIndex=0;
+int rip = 0;
+int tempp=0;
+int count=0;
+int max_iter = 300;
+double * dataP;
+int* numInCluster;
+double* centroids;
+double* centroidsHolder;
+double **clusters;
+int t1=0;
+int i1=0;
+int a =0;
+int b=0;
+
 
 static int wam(int K,int d,int N,int observations[],double dataPoints[],char* goal)
 {
@@ -154,7 +182,7 @@ static int ddg(int K,int d,int N,int observations[],double dataPoints[],char* go
         }
         D[i][i] = sum;
     }
-
+    printf("D is \n");
     for(i = 0; i < N; i++)
   	{
   		for(j = 0; j < N; j++)
@@ -172,6 +200,7 @@ static int ddg(int K,int d,int N,int observations[],double dataPoints[],char* go
         return lnorm(K,d,N,observations,dataPoints,goal,W,D);
     }
     else { //if goal == ddg we print D
+        printf("D is \n");
         for(i = 0; i < N; i++)
         {
             for(j = 0; j < N; j++)
@@ -201,20 +230,11 @@ static int lnorm(int K,int d,int N,int observations[],double dataPoints[],char* 
 
     for(i=0;i<N;i++)
     {
-        Dtag[i][i] = 1/sqrt(D[i][i]);
+        if(D[i][i]>0)
+        {
+            Dtag[i][i] = 1/sqrt(D[i][i]);
+        }
     }
-    for(i = 0; i < N; i++)
-  	{
-  		for(j = 0; j < N; j++)
-  		{
-            if (j != N-1)
-  			    printf("%0.4f,", Dtag[i][j]);
-            else
-                printf("%0.4f", Dtag[i][j]);
-		}
-   		printf("\n");
-  	}  	
-
 
     I = (double **) realloc(I,N*sizeof(*I)); //Create nxn indentity matrix
     for(i=0;i<N;i++)
@@ -273,6 +293,20 @@ static int lnorm(int K,int d,int N,int observations[],double dataPoints[],char* 
             lNorm[i][j]=I[i][j]-mult2[i][j];
         }
     }
+
+    printf("lnorm is \n");
+    for(i = 0; i < N; i++)
+  	{
+  		for(j = 0; j < N; j++)
+  		{
+            if (j != N-1)
+  			    printf("%0.4f,", lNorm[i][j]);
+            else
+                printf("%0.4f", lNorm[i][j]);
+		}
+   		printf("\n");
+  	}  	
+
     if (strcmp(goal,"lnorm") != 0) //if goal != lnorm we move on
     {
         return jacobi(K,d,N,observations,dataPoints,goal,lNorm);
@@ -296,20 +330,20 @@ static int lnorm(int K,int d,int N,int observations[],double dataPoints[],char* 
         free(I[i]);
         free(mult1[i]);
         free(mult2[i]);
-        free(mult1[i]);
-        free(lNorm[i]);
+        free(lNorm[i]); 
     }
     free(Dtag);
     free(I);
     free(mult1);
     free(mult2);
     free(lNorm);
+    
     return 0;
 }
 static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char* goal,double ** lNorm)
 {
+    
     printf("JACOBIII\n");
-
     A = (double **) realloc(A,N*sizeof(*A)); //Create nxn matrix
     for(i=0;i<N;i++)
     {
@@ -317,6 +351,7 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
     }
     if (strcmp(goal,"jacobi") != 0) //if goal != jacobi we operate on lNorm
     {
+        printf("using lnorm for eigen\n");
         for(i=0;i<N;i++)
         {
             for(j=0;j<N;j++)
@@ -327,6 +362,7 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
     }
     else //if goal == jacobi then we have a symmetric matrix in the input file
     {
+        printf("using input for eigen\n");
         index =0;
         for(i=0;i<N;i++)
         {
@@ -363,8 +399,8 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
     {
         Vtag[i] = (double *)malloc(N*sizeof(double));
     }
-
     iter = 0;
+    flag = 1;
     while(flag==1 && iter<101)
     {
         max = -1;
@@ -426,19 +462,19 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
         }
         else //iter>1 so we want to mult by the new P from the right
         {
-            for(i=0;i<N;i++) //first mult
+            for(i=0;i<N;i++) 
             {
                 for(j=0;j<N;j++)
                 {
                     Vtag[i][j]=0;
                     for(k=0;k<N;k++)
                     {
-                        Vtag[i][j]+= V[i][k]*P[k][j]; //P^t*A
+                        Vtag[i][j]+= V[i][k]*P[k][j]; //V' = V*P
                     }
                 }
             }
             //Now we set V= V'
-            for(i=0;i<N;i++) //first mult
+            for(i=0;i<N;i++) 
             {
                 for(j=0;j<N;j++)
                 {
@@ -507,13 +543,11 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
         }
         iter++;
     }
-
     eigenvalues= realloc(eigenvalues,N*sizeof(double));
     for(i=0;i<N;i++)
     {
         eigenvalues[i] = A[i][i];
     }
-
     if (strcmp(goal,"jacobi") != 0) //if goal != jacobi we move on
     {
         return eigengap(K,d,N,observations,eigenvalues,V);
@@ -528,7 +562,7 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
                 printf("%0.4f",eigenvalues[i]);
         }
         printf("\n");
-        printf("V is \n");
+        printf("V is (printed as columns\n");
         for(i = 0; i < N; i++)
         {
             for(j = 0; j < N; j++)
@@ -539,8 +573,7 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
                     printf("%0.4f", V[j][i]);
             }
             printf("\n");
-        }  	
-
+        } 
     }
     for (i = 0; i < N; i++) {
         free(A[i]);
@@ -618,7 +651,7 @@ static int eigengap(int K,int d,int N,int observations[],double eigenvalues[],do
             printf("%0.4f ",delta[i]);
         }
         max=0;
-        for(i=1;i<floor(N/2);i++)
+        for(i=0;i<=floor(N/2);i++)
         {
             if (delta[i]>max) {
                 max = delta[i];
@@ -626,6 +659,7 @@ static int eigengap(int K,int d,int N,int observations[],double eigenvalues[],do
             }
         }
         printf("We got K = %d\n",K);
+        free(delta);
         return K;
     }
 
@@ -636,7 +670,254 @@ static int eigengap(int K,int d,int N,int observations[],double eigenvalues[],do
 
 static int spk(int K,int d,int N,int observations[],double ** V)
 {
-    return 0; //here
+    U = (double **) realloc(U,N*sizeof(*U)); //Create nxk matrix
+    for(i=0;i<N;i++)
+    {
+        U[i] = (double *)malloc(K*sizeof(double));
+    }
+    T = (double **) realloc(T,N*sizeof(*T)); //Create nxk matrix
+    for(i=0;i<N;i++)
+    {
+        T[i] = (double *)malloc(K*sizeof(double));
+    }
+
+    for(i=0;i<N;i++)//Calculate U
+    {
+        for(j=0;j<K;j++)
+        {
+            U[i][j] = V[i][j]; //Set U as the largest k eigenvectors
+        }
+    }
+
+    printf("U is \n");
+    for(i = 0; i < N; i++)
+    {
+        for(j = 0; j < K; j++)
+        {
+            if (j != K-1)
+                printf("%0.4f,", U[i][j]);
+            else
+                printf("%0.4f", U[i][j]);
+        }
+        printf("\n");
+    }  	
+    z = 0;
+    for(i=0;i<N;i++) //Calculate T
+    {
+        sum = 0;
+        for(j=0;j<K;j++)
+        {
+            sum = sum + pow(U[i][j],2); //sum row squared
+        }
+        if (sum>0)
+            sum = sqrt(sum);
+        for(z=0;z<K;z++)
+        {   
+            if (sum>0)
+                T[i][z] = U[i][z]/sum;
+        }
+    }
+    printf("T is \n");
+    for(i = 0; i < N; i++)
+    {
+        for(j = 0; j < K; j++)
+        {
+            if (j != K-1)
+                printf("%0.4f,", T[i][j]);
+            else
+                printf("%0.4f", T[i][j]);
+        }
+        printf("\n");
+    }  	
+    if(obser[0] == -1) //if we need to calc observations for kmeans++ (will happen if this is the first iteration)
+    {
+        output = "nirTestFile.txt";
+        outputFile = fopen(output,"w");
+        for(i=0;i<N;i++)
+        {
+            fprintf(outputFile,"%0.4f",(double)i);
+            fputs(",",outputFile);
+            for(j=0;j<K;j++)
+            {
+                fprintf(outputFile,"%0.4f",T[i][j]);
+                if (j != K-1)
+                {
+                    fputs(",",outputFile);
+                }
+            }
+            fputc('\n',outputFile);
+        }
+        fclose(outputFile);
+    }
+    else { //if we already have the observations we can run kmeans using the given observations
+        d = K; //T is {nxk}
+        printf("d= %d, K= %d , N= %d\n",d,K,N);
+        dataP = realloc(dataP,K*N*sizeof(double));
+        index = 0;
+        for(i=0;i<N;i++)
+        {
+            for(j=0;j<K;j++)
+            {
+                dataP[index] = T[i][j];
+                index++;
+            }
+        }
+        numInCluster= realloc(numInCluster,K*sizeof(int));
+        centroids = realloc(centroids,d*K * sizeof(double));
+        centroidsHolder=realloc(centroidsHolder,d*K*sizeof(double));
+        clusters = (double **) realloc(clusters,K*sizeof(*clusters));
+        for(i=0;i<K;i++)
+        {
+            clusters[i] = (double *)malloc(N*d*sizeof(double));
+        }
+
+        for (i=0;i<K;i++) /* init numInCluster */
+        {
+            numInCluster[i] = 0;
+        }
+        for (i=0;i<K;i++) /* init clusters */
+        {
+            for(j=0;j<N*d;j++)
+            {
+                clusters[i][j]=0;
+            }
+        }
+        for (i=0;i<K;i++)
+        {
+            for(j=0;j<d;j++)
+            {
+                centroids[(i*d)+j] = dataP[(observations[i]*d)+j];
+            }
+        }
+            /* repeat: */
+        while(flagg==1 && iter<max_iter)
+        {
+            for (a=0;a<K;a++)
+            {
+                for(b=0;b<N*d;b++)
+                {
+                    clusters[a][b]=0;
+                }
+            }
+            for (x=0;x<K;x++) /*reset num in each cluster*/
+            {
+                numInCluster[x]=0;
+            }
+            for (i1=0; i1<N*d; i1=i1+d)
+            {
+                min = 10000000;
+                for(t1=0;t1<K*d;t1=t1+d)
+                {
+                    sum =0;
+                    for (z1=0;z1<d;z1++)
+                    {
+                        sum = sum + pow(dataP[i1+z1]-centroids[t1+z1],2); /* (x_i-mu_j)^2*/
+                    }
+                    if (sum<min)
+                    {
+                        min = sum;
+                        minIndex = t1/d; /* d =/= 0 */
+                    }
+                }
+                for (z1=0;z1<d;z1++)
+                {
+                    tempp = numInCluster[minIndex];
+                    clusters[minIndex][tempp] = dataP[i1+z1];
+                    numInCluster[minIndex]+=1;
+                }
+            }
+            /* update the centroids */
+            /* first we copy the current centroids to another array in order to check if new-old<epsilon) */
+            for (cc=0;cc<K*d;cc++)
+            {
+                centroidsHolder[cc]=centroids[cc];
+            }
+            /* calculate the new centroids*/
+            rip=0;
+            for (i1=0;i1<K;i1++)
+            {   
+                count=0;
+                while(count<d) {
+                sum=0;
+                for(t1=count;t1<N*d;t1=t1+d)
+                { 
+                    sum = sum + clusters[i1][t1];
+                }
+                if(numInCluster[i1] != 0)
+                {
+                    centroids[rip+count] = sum/(numInCluster[i1]/d);
+                    count++;
+                }
+                else if(numInCluster[i1] == 0) /* if clsuter is empty*/
+                {
+                    centroids[rip+count] = 0;
+                    count++;
+                }
+                }
+                rip = rip +d;
+            }
+
+            /* now we want to check if ||new-old||<epsilon for every vectors in centroids[] */
+            for(cc=0;cc<K*d;cc++)
+            {
+                centroidsHolder[cc]= fabs(centroidsHolder[cc])-fabs(centroids[cc]);
+            }
+            
+
+            counter1=0;
+            for(cc=0;cc<K*d;cc=cc+d)
+            {
+                sum=0;
+                for(z=0;z<d;z++)
+                {
+                    sum = sum + pow(centroidsHolder[cc+z],2);
+                }
+                norm = sqrt(sum);
+                if (norm < epsilon2) {
+                    counter1++;
+                    if (counter1==K)
+                    {
+                        flagg=0;
+                    }
+                }
+            }
+
+            iter++;
+        } 
+        printf("final centroids:\n");
+        for(i=0;i<K;i++)
+        {
+            for(j=0;j<d;j++)
+            {
+                printf("%0.4f",centroids[(i*d)+j]);
+                if(j != (d-1))
+                {
+                    printf(",");
+                }
+                else {
+                    printf("\n");
+                }
+            }
+        }
+
+        for (i = 0; i < K; i++)
+            free(clusters[i]);
+        free(clusters);
+        free(centroids);
+        free(centroidsHolder);
+        free(numInCluster);
+        free(observations);
+        free(dataP);
+
+    }
+    for(i=0;i<N;i++)
+    {
+        free(U[i]);
+        free(T[i]);   
+    }
+    free(U);
+    free(T);
+    return 0; 
 }
 
 static PyObject* spkmeans(PyObject *self,PyObject *args)
