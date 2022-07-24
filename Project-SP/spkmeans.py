@@ -1,5 +1,4 @@
 import sys
-import math
 import numpy as np
 import pandas as pd
 import spkmeans as spk
@@ -49,31 +48,31 @@ if K<0 or K>=N:
     quit() 
 
 
-header = [] #transform given file to a pd table
+header = [] 
 header.append("0")
 for i in range(d-1):
     header.append(str(i+1))
-input = pd.read_csv(file_name,sep=',',names=header)
+input = pd.read_csv(file_name,sep=',',names=header) #transform given file to a pd table
 
 print(input)
 
 
-index = 0
+indexx = 0
 dataPoints = [0 for y in range(N*d)]
 observations = [-1]
 for x in input.values.tolist():
     for y in x:
-        dataPoints[index] = y
-        index = index + 1
+        dataPoints[indexx] = y
+        indexx = indexx + 1
 
 if goal in ['wam','ddg','lnorm','jacobi']: #if we dont need to determine K or to run Kmeans
     spk.wam(K,d,N,observations,dataPoints,goal)
     quit()
 
 if K==0: #if we need to determine K
-    K = spk.wam(K,d,N,observations,dataPoints,goal)
+    K = spk.wam(K,d,N,observations,dataPoints,goal) #calc K
 
-spk.wam(K,d,N,observations,dataPoints,goal)
+spk.wam(K,d,N,observations,dataPoints,goal) #calc T (will be in 'nirTestFile.txt')
 
 print("-----------startKmeans++-----------")
 
@@ -100,7 +99,7 @@ header = [] #transform given file to a pd table
 header.append("0")
 for i in range(dd-1):
     header.append(str(i+1))
-input2 = pd.read_csv("nirTestFile.txt",sep=',',names=header,index_col=None)
+input2 = pd.read_csv("nirTestFile.txt",sep=',',names=header,index_col=None) #transform T file to a pd table
 print("yesssssss\n")
 print(input2)
 
@@ -150,4 +149,3 @@ print("-----------endKmeans++-----------")
 spk.wam(K,d,N,observations,dataPoints,goal)
 
 print("-----------endPYTHON-----------")
-quit()
