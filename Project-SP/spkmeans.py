@@ -76,8 +76,10 @@ spk.wam(K,d,N,observations,dataPoints,goal) #calc T (will be in 'nirTestFile.txt
 
 print("-----------startKmeans++-----------")
 
+input1 = "nirTestFile.txt"
+
 NN = 0
-file2 = open("nirTestFile.txt",'r')
+file2 = open(input1,'r')
 line = file2.readline()
 while line !='':
     line = file2.readline()
@@ -85,7 +87,7 @@ while line !='':
 file2.close()
 
 dd=0
-file2 = open("nirTestFile.txt",'r')
+file2 = open(input1,'r')
 line = file2.readline()
 for chars in line:
     if chars==',':
@@ -99,7 +101,7 @@ header = [] #transform given file to a pd table
 header.append("0")
 for i in range(dd-1):
     header.append(str(i+1))
-input2 = pd.read_csv("nirTestFile.txt",sep=',',names=header,index_col=None) #transform T file to a pd table
+input2 = pd.read_csv(input1,sep=',',names=header,index_col=None) #transform T file to a pd table
 print("yesssssss\n")
 print(input2)
 
@@ -115,12 +117,12 @@ D = [0 for y in range(NN)]
 #K-means++ 
 i=1
 np.random.seed(0)
-rand = np.random.randint(low=0,high=N)
+rand = np.random.randint(low=0,high=NN)
 centroids[0] = input2.iloc[rand,1:dd+1].values
 observations.append(rand)
 
 while i<K: #repeat
-    for l in range(N):
+    for l in range(NN):
         min = ((input2.iloc[l,1:dd+1].values-centroids[0])**2)
         for j in range(i-1):
             val = ((input2.iloc[l,1:dd+1].values-centroids[j+1])**2)
@@ -128,16 +130,16 @@ while i<K: #repeat
                 min = val[0]
         D[l] = min
     sum1 = 0
-    for m in range(N):
+    for m in range(NN):
         sum1 = sum1 + sum(D[m])
 
-    for l in range(N):
+    for l in range(NN):
         prob[l] = D[l]/sum1
     
-    for l in range(N):
+    for l in range(NN):
         probabilites[l] = sum(prob[l]) #sum the probabilities
 
-    a = np.random.choice(N,1,replace=False,p = probabilites) #random observation
+    a = np.random.choice(NN,1,replace=False,p = probabilites) #random observation
     centroids[i] = input2.iloc[a,1:dd+1].values
     observations.append(a[0])
     i = i +1

@@ -11,7 +11,7 @@
 double sum =0;
 double norm = 0;
 double epsilon = 1/100000;
-double epsilon2 = 0.001;
+double epsilon2 = 0;
 int iter = 0;
 double max =0;
 int maxI = 0;
@@ -90,8 +90,6 @@ int t1=0;
 int i1=0;
 int a =0;
 int b=0;
-
-
 
 static int wam(int K,int d,int N,int observations[],double dataPoints[],char* goal)
 {
@@ -563,6 +561,7 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
     {
         eigenvalues[i] = A[i][i];
     }
+
     if (strcmp(goal,"jacobi") != 0) /* if goal != jacobi we move on */
     {
         return eigengap(K,d,N,observations,eigenvalues,V);
@@ -685,19 +684,6 @@ static int eigengap(int K,int d,int N,int observations[],double eigenvalues[],do
 
 static int spk(int K,int d,int N,int observations[],double ** V)
 {
-    printf("VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV \n");
-    for(i = 0; i < N; i++)
-    {
-        for(j = 0; j < N; j++)
-        {
-            if (j != N-1)
-                printf("%0.4f,", V[i][j]);
-            else
-                printf("%0.4f", V[i][j]);
-        }
-        printf("\n");
-    }  	
-
     U = (double **) realloc(U,N*sizeof(*U)); /*Create nxk matrix */
     for(i=0;i<N;i++)
     {
