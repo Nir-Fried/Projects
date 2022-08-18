@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-
 char *file_name;
 char *goal;
 FILE *file = NULL;
@@ -57,7 +56,7 @@ double epsilon = 1/100000;
 double* eigenvalues;
 
 
-int jacobi(int N,double dataPoints[])
+int jacobi(int N,double dataPoints[]) /* there are NxN datapoints */
 {
     A = (double **) realloc(A,N*sizeof(*A)); /*Create nxn matrix */
     for(i=0;i<N;i++)
@@ -608,6 +607,6 @@ int main(int argc,char * argv[])
         wam(d,N,dataPoints,goal);
     }
 
-    printf("--------------ENDC------------\n");
+    printf("--------------ENDC------------!\n");
     return 0;
 }

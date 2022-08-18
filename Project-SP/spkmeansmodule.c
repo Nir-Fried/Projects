@@ -10,8 +10,8 @@
 
 double sum =0;
 double norm = 0;
-double epsilon = 1/100000;
-double epsilon2 = 0;
+double epsilon = 0.00001;
+double epsilon2 = 0; /* was said in the forum */
 int iter = 0;
 double max =0;
 int maxI = 0;
@@ -96,13 +96,13 @@ static int wam(int K,int d,int N,int observations[],double dataPoints[],char* go
     printf("WAM!\n");
     if(K != 0 && strcmp(goal,"spk") == 0 && observations[0] != -1) /* optimization: if we already have K and have already calculated the observations  */
     {                                                              /* it means we also calculated V so instead of running  */
-        printf("blazeit\n");                                       /* everything again we can jump to spk with already calculated V */
+        printf("skip\n");                                       /* everything again we can jump to spk with the already calculated V */
         spk(K,d,N,observations,V);                                 /* notice that observations[0] != -1 since we already calculated them*/
         return 0;
     }
     else if(kFlag ==1 && strcmp(goal,"spk") == 0 && observations[0] == -1) /* another optimization: if kFlag ==1 it means we already calculated everything  */
     {                                                                      /* in order to find K's value (and we have it). therefore we can just skip everything */
-        printf("blazeit2\n");                                              /* by jumping to spk with the already calculated V (notice that obser[0] == -1 since we */
+        printf("skip2\n");                                              /* by jumping to spk with the already calculated V (notice that obser[0] == -1 since we */
         spk(K,d,N,observations,V);                                         /* didn't calculate the observations yet). both optimizations only apply for goal == spk */
         return 0;
     }
@@ -665,7 +665,7 @@ static int eigengap(int K,int d,int N,int observations[],double eigenvalues[],do
             printf("%0.4f ",delta[i]);
         }
         max=0;
-        for(i=0;i<=floor(N/2);i++)
+        for(i=0;i< floor(N/2);i++)
         {
             if (delta[i]>max) {
                 max = delta[i];
@@ -783,6 +783,11 @@ static int spk(int K,int d,int N,int observations[],double ** V)
         for(i=0;i<K;i++)
         {
             clusters[i] = (double *)malloc(N*d*sizeof(double));
+        }
+        for(i=0;i<d*K;i++)
+        {
+            centroids[i] = 0;
+            centroidsHolder[i] = 0;
         }
 
         for (i=0;i<K;i++) /* init numInCluster */

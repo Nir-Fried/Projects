@@ -43,6 +43,8 @@ while line !='':
     N=N+1
 file.close()
 
+print("ORIGINAL d = ", d , " N = " , N)
+
 if K<0 or K>=N:
     print('Invalid Input!')
     quit() 
