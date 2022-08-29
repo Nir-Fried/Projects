@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import pandas as pd
 import spkmeans as spk
+import os
 
 if len(sys.argv) != 4:
     print('Invalid input!')
@@ -94,15 +95,15 @@ line = file2.readline()
 for chars in line:
     if chars==',':
         dd = dd +1
-    file.close()
+    file2.close()
 
 print("dd is " , dd , " and NN is ", NN)
 
 
 header = [] #transform given file to a pd table
-header.append("0")
-for i in range(dd-1):
-    header.append(str(i+1))
+header.append("key")
+for i in range(dd):
+    header.append(str(i))
 input2 = pd.read_csv(input1,sep=',',names=header,index_col=None) #transform T file to a pd table
 print("yesssssss\n")
 print(input2)
@@ -151,5 +152,7 @@ print(','.join(map(str,observations)))
 print("-----------endKmeans++-----------")
 
 spk.wam(K,d,N,observations,dataPoints,goal)
+
+os.remove("nirTestFile.txt") #remove test file
 
 print("-----------endPYTHON-----------")

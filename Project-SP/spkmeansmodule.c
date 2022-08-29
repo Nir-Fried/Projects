@@ -694,6 +694,10 @@ static int spk(int K,int d,int N,int observations[],double ** V)
     {
         T[i] = (double *)malloc(K*sizeof(double));
     }
+    for(i=0;i<N;i++) /* init T */
+    {
+        memset(T[i],0,K*sizeof(double));
+    } 
 
     for(i=0;i<N;i++)/*Calculate U */
     {
@@ -703,18 +707,7 @@ static int spk(int K,int d,int N,int observations[],double ** V)
         }
     }
 
-    printf("U is \n");
-    for(i = 0; i < N; i++)
-    {
-        for(j = 0; j < K; j++)
-        {
-            if (j != K-1)
-                printf("%0.4f,", U[i][j]);
-            else
-                printf("%0.4f", U[i][j]);
-        }
-        printf("\n");
-    }  	
+
     z = 0;
     for(i=0;i<N;i++) /*Calculate T */
     {
@@ -731,6 +724,20 @@ static int spk(int K,int d,int N,int observations[],double ** V)
                 T[i][z] = U[i][z]/sum;
         }
     }
+
+    printf("U is \n");
+    for(i = 0; i < N; i++)
+    {
+        for(j = 0; j < K; j++)
+        {
+            if (j != K-1)
+                printf("%0.4f,", U[i][j]);
+            else
+                printf("%0.4f", U[i][j]);
+        }
+        printf("\n");
+    }  	
+
     printf("T is \n");
     for(i = 0; i < N; i++)
     {
@@ -743,6 +750,8 @@ static int spk(int K,int d,int N,int observations[],double ** V)
         }
         printf("\n");
     }  	
+
+
     if(obser[0] == -1) /* if we need to calc observations for kmeans++ (will happen if this is the first time we reach here) */
     {
         output = "nirTestFile.txt";
