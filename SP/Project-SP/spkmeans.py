@@ -22,8 +22,6 @@ if goal not in ['spk','wam','ddg','lnorm','jacobi']:
 
 K = int(K)
 
-print("-----------startPYTHON-----------")
-
 d=1 #calculate d
 try:
     file = open(file_name,'r')
@@ -36,15 +34,13 @@ except FileNotFoundError:
     print('An Error Has Occurred')
     quit()
 
-N = 0 #calculate d
+N = 0 #calculate N
 file = open(file_name,'r')
 line = file.readline()
 while line !='':
     line=file.readline()
     N=N+1
 file.close()
-
-print("ORIGINAL d = ", d , " N = " , N)
 
 if K<0 or K>=N:
     print('Invalid Input!')
@@ -56,8 +52,6 @@ header.append("0")
 for i in range(d-1):
     header.append(str(i+1))
 input = pd.read_csv(file_name,sep=',',names=header) #transform given file to a pd table
-
-print(input)
 
 
 indexx = 0
@@ -77,7 +71,6 @@ if K==0: #if we need to determine K
 
 spk.wam(K,d,N,observations,dataPoints,goal) #calc T (will be in 'nirTestFile.txt')
 
-print("-----------startKmeans++-----------")
 
 input1 = "nirTestFile.txt"
 
@@ -97,16 +90,12 @@ for chars in line:
         dd = dd +1
     file2.close()
 
-print("dd is " , dd , " and NN is ", NN)
-
 
 header = [] #transform given file to a pd table
 header.append("key")
 for i in range(dd):
     header.append(str(i))
 input2 = pd.read_csv(input1,sep=',',names=header,index_col=None) #transform T file to a pd table
-print("yesssssss\n")
-print(input2)
 
 observations.remove(-1) #remove the -1, now its empty.
 
@@ -149,10 +138,6 @@ while i<K: #repeat
 
 print(','.join(map(str,observations)))
 
-print("-----------endKmeans++-----------")
-
 spk.wam(K,d,N,observations,dataPoints,goal)
 
 os.remove("nirTestFile.txt") #remove test file
-
-print("-----------endPYTHON-----------")

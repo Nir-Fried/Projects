@@ -11,7 +11,7 @@
 double sum =0;
 double norm = 0;
 double epsilon = 0.00001;
-double epsilon2 = 0; /* was said in the forum */
+double epsilon2 = 0;
 int iter = 0;
 double max =0;
 int maxI = 0;
@@ -93,30 +93,19 @@ int b=0;
 
 static int wam(int K,int d,int N,int observations[],double dataPoints[],char* goal)
 {
-    printf("WAM!\n");
     if(K != 0 && strcmp(goal,"spk") == 0 && observations[0] != -1) /* optimization: if we already have K and have already calculated the observations  */
     {                                                              /* it means we also calculated V so instead of running  */
-        printf("skip\n");                                       /* everything again we can jump to spk with the already calculated V */
+                                                                   /* everything again we can jump to spk with the already calculated V */
         spk(K,d,N,observations,V);                                 /* notice that observations[0] != -1 since we already calculated them*/
         return 0;
     }
     else if(kFlag ==1 && strcmp(goal,"spk") == 0 && observations[0] == -1) /* another optimization: if kFlag ==1 it means we already calculated everything  */
     {                                                                      /* in order to find K's value (and we have it). therefore we can just skip everything */
-        printf("skip2\n");                                              /* by jumping to spk with the already calculated V (notice that obser[0] == -1 since we */
+                                                                           /* by jumping to spk with the already calculated V (notice that obser[0] == -1 since we */
         spk(K,d,N,observations,V);                                         /* didn't calculate the observations yet). both optimizations only apply for goal == spk */
         return 0;
     }
     else {
-        printf("K=%d,d=%d,N=%d\n",K,d,N);
-        printf("\n");
-        for (i=0;i<N*d;i=i+d)
-        {
-            for(j=0;j<d;j++)
-            {
-                printf("%0.4f,",dataPoints[i+j]);
-            }
-            printf("\n");
-        }
         
         W = (double **) realloc(W,N*sizeof(*W)); /* Create nxn matrix */
         for(i=0;i<N;i++)
@@ -144,24 +133,11 @@ static int wam(int K,int d,int N,int observations[],double dataPoints[],char* go
                 W[j][i]= exp(norm);
             }
         }
-        printf(" W is \n");
-        for(i = 0; i < N; i++)
-        {
-            for(j = 0; j < N; j++)
-            {
-                if (j != N-1)
-                    printf("%0.4f,", W[i][j]);
-                else
-                    printf("%0.4f", W[i][j]);
-            }
-            printf("\n");
-        }  	
         if (strcmp(goal,"wam") != 0) /* if goal != wam we move on */
         {
             return ddg(K,d,N,observations,dataPoints,goal,W);
         }
         else { /* if goal == wam we print W */
-            printf(" W is \n");
             for(i = 0; i < N; i++)
             {
                 for(j = 0; j < N; j++)
@@ -182,8 +158,6 @@ static int wam(int K,int d,int N,int observations[],double dataPoints[],char* go
 }
 static int ddg(int K,int d,int N,int observations[],double dataPoints[],char* goal,double ** W)
 {
-    printf("DDG!!!\n");
-
     D = (double **) realloc(D,N*sizeof(*D)); /* Create nxn matrix */
     for(i=0;i<N;i++)
     {
@@ -208,7 +182,6 @@ static int ddg(int K,int d,int N,int observations[],double dataPoints[],char* go
         return lnorm(K,d,N,observations,dataPoints,goal,W,D);
     }
     else { /* if goal == ddg we print D */
-        printf("D is \n");
         for(i = 0; i < N; i++)
         {
             for(j = 0; j < N; j++)
@@ -228,8 +201,6 @@ static int ddg(int K,int d,int N,int observations[],double dataPoints[],char* go
 }
 static int lnorm(int K,int d,int N,int observations[],double dataPoints[],char* goal,double ** W,double ** D)
 {
-    printf("LNORM\n");
-
     Dtag = (double **) realloc(Dtag,N*sizeof(*Dtag)); /*Create nxn matrix */
     for(i=0;i<N;i++)
     {
@@ -307,25 +278,11 @@ static int lnorm(int K,int d,int N,int observations[],double dataPoints[],char* 
             lNorm[i][j]=I[i][j]-mult2[i][j];
         }
     }
-    printf("lnorm is \n");
-    for(i = 0; i < N; i++)
-  	{
-  		for(j = 0; j < N; j++)
-  		{
-            if (j != N-1)
-  			    printf("%0.4f,", lNorm[i][j]);
-            else
-                printf("%0.4f", lNorm[i][j]);
-		}
-   		printf("\n");
-  	}  	
-
     if (strcmp(goal,"lnorm") != 0) /* if goal != lnorm we move on */
     {
         return jacobi(K,d,N,observations,dataPoints,goal,lNorm);
     }
-    else { /*else we print lNorm */
-        printf("final LNORM\n");
+    else { /*else, we print lNorm */
         for(i = 0; i < N; i++)
         {
             for(j = 0; j < N; j++)
@@ -355,8 +312,6 @@ static int lnorm(int K,int d,int N,int observations[],double dataPoints[],char* 
 }
 static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char* goal,double ** lNorm)
 {
-    
-    printf("JACOBIII\n");
     A = (double **) realloc(A,N*sizeof(*A)); /*Create nxn matrix */
     for(i=0;i<N;i++)
     {
@@ -364,7 +319,6 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
     }
     if (strcmp(goal,"jacobi") != 0) /* if goal != jacobi we operate on lNorm */
     {
-        printf("using lnorm for eigen\n");
         for(i=0;i<N;i++)
         {
             for(j=0;j<N;j++)
@@ -375,7 +329,6 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
     }
     else /* if goal == jacobi then we have a symmetric matrix in the input file */
     {
-        printf("using input for eigen\n");
         indexx =0;
         for(i=0;i<N;i++)
         {
@@ -566,8 +519,7 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
     {
         return eigengap(K,d,N,observations,eigenvalues,V);
     }
-    else { /* if goal == jacobi we print eigenvalues+eigenvectors */
-        printf("eigenvalues are:\n");
+    else { /* if goal == jacobi we print eigenvalues+eigenvectors as columns */
         for(i=0;i<N;i++)
         {   
             if(i != N-1)
@@ -576,7 +528,6 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
                 printf("%0.4f",eigenvalues[i]);
         }
         printf("\n");
-        printf("V is (printed as columns\n");
         for(i = 0; i < N; i++)
         {
             for(j = 0; j < N; j++)
@@ -608,7 +559,6 @@ static int jacobi(int K,int d,int N,int observations[],double dataPoints[],char*
 }
 static int eigengap(int K,int d,int N,int observations[],double eigenvalues[],double ** V)
 {
-    printf("EIGENGAPPPPP\n");
     /* Sort eigenvalues in decreasing order */
     for(i=0;i<N;i++)
     {
@@ -633,36 +583,12 @@ static int eigengap(int K,int d,int N,int observations[],double eigenvalues[],do
             V[j][maxI] = temp;
         }
     }
-    printf("after sort!!\n");
-    printf("eigenvalues are:\n");
-    for(i=0;i<N;i++)
-    {
-        printf("%0.4f \n",eigenvalues[i]);
-    }
-    printf("V is \n");
-    for(i = 0; i < N; i++)
-    {
-        for(j = 0; j < N; j++)
-        {
-            if (j != N-1)
-                printf("%0.4f,", V[i][j]);
-            else
-                printf("%0.4f", V[i][j]);
-        }
-        printf("\n");
-    }  	
-
     if(K==0) /* if we need to determine K */
     {
         delta = realloc(delta,(N-1)*sizeof(double));
         for(i=0;i<N-1;i++)
         {
             delta[i] = fabs(eigenvalues[i]-eigenvalues[i+1]);
-        }
-        printf("\n");
-        for(i=0;i<N-1;i++)
-        {
-            printf("%0.4f ",delta[i]);
         }
         max=0;
         for(i=0;i< floor(N/2);i++)
@@ -672,7 +598,6 @@ static int eigengap(int K,int d,int N,int observations[],double eigenvalues[],do
                 K = i+1;
             }
         }
-        printf("We got K = %d\n",K);
         kFlag = 1; /* if ==1 it means that we already calculated V and that we have the K value.  */
         free(delta);
         return K;
@@ -707,8 +632,6 @@ static int spk(int K,int d,int N,int observations[],double ** V)
         }
     }
 
-
-    z = 0;
     for(i=0;i<N;i++) /*Calculate T */
     {
         sum = 0;
@@ -725,40 +648,13 @@ static int spk(int K,int d,int N,int observations[],double ** V)
         }
     }
 
-    printf("U is \n");
-    for(i = 0; i < N; i++)
-    {
-        for(j = 0; j < K; j++)
-        {
-            if (j != K-1)
-                printf("%0.4f,", U[i][j]);
-            else
-                printf("%0.4f", U[i][j]);
-        }
-        printf("\n");
-    }  	
-
-    printf("T is \n");
-    for(i = 0; i < N; i++)
-    {
-        for(j = 0; j < K; j++)
-        {
-            if (j != K-1)
-                printf("%0.4f,", T[i][j]);
-            else
-                printf("%0.4f", T[i][j]);
-        }
-        printf("\n");
-    }  	
-
-
     if(obser[0] == -1) /* if we need to calc observations for kmeans++ (will happen if this is the first time we reach here) */
     {
-        output = "nirTestFile.txt";
+        output = "nirTestFile.txt"; /* put T inside a test file */
         outputFile = fopen(output,"w");
         for(i=0;i<N;i++)
         {
-            fprintf(outputFile,"%0.4f",(double)i);
+            fprintf(outputFile,"%0.4f",(double)i); /* first column will be the index, just like in hw2*/
             fputs(",",outputFile);
             for(j=0;j<K;j++)
             {
@@ -774,7 +670,6 @@ static int spk(int K,int d,int N,int observations[],double ** V)
     }
     else { /* if we already have the observations we can run kmeans using the given observations */
         d = K; /* T is {nxk} */
-        printf("d= %d, K= %d , N= %d\n",d,K,N);
         dataP = realloc(dataP,K*N*sizeof(double));
         indexx = 0;
         for(i=0;i<N;i++)
@@ -911,8 +806,7 @@ static int spk(int K,int d,int N,int observations[],double ** V)
 
             iter++;
         } 
-        printf("final centroids:\n");
-        for(i=0;i<K;i++)
+        for(i=0;i<K;i++) /* print the final centroids: */
         {
             for(j=0;j<d;j++)
             {
